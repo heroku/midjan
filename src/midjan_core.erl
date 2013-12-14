@@ -33,6 +33,8 @@ maybe_run_after(Client, NextAction, #state{aftereach=undefined}=State) ->
 maybe_run_after(Client, _, #state{aftereach=Module}=State) ->
     run_module(Client, Module, State).
 
+decide(stop, _LastModule, _State) ->
+    stop;
 decide(next, _LastModule, #state{path=[]}) ->
     stop;
 decide(next, _LastModule, #state{path=[NextModule|Rest]}=State) ->
