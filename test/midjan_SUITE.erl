@@ -9,9 +9,10 @@ all() ->
 groups() ->
     [
      {midjan_ordered, [], [full_flow,
-                           after_each,
                            go_back,
-                           translator
+                           translator,
+                           before_fun,
+                           after_fun
                           ]}
     ].
 
@@ -42,13 +43,6 @@ full_flow(Config) ->
     {_, [midjan_test1, midjan_test2]} = Results,
     Config.
 
-after_each(Config) ->
-    {done, Results} = midjan_core:start({full_flow, []}, [{ordered, [midjan_test1,
-                                                                     midjan_test2]},
-                                                          {aftereach, midjan_test3}]),
-    {_, [midjan_test1, midjan_test3, midjan_test2, midjan_test3]} = Results,
-    Config.
-
 go_back(Config) ->
     {done, Results} = midjan_core:start({go_back, []}, [{ordered, [midjan_test1,
                                                                    midjan_test2,
@@ -69,3 +63,31 @@ translator(Config) ->
                                                           ]),
     {translated, [midjan_test1, midjan_test2, midjan_test3]} = Results,
     Config.
+
+before_fun(Config) ->
+    {done, Results} = midjan_core:start({before_fun, []}, [{ordered, [midjan_test1,
+                                                                      midjan_test2,
+                                                                      midjan_test3
+                                                                     ]},
+                                                           {before_each, fun hook_test/2}
+                                                          ]),
+    {before_fun, [{hook, midjan_test1}, midjan_test1, 
+                  {hook, midjan_test2}, midjan_test2, 
+                  {hook, midjan_test3}, midjan_test3]} = Results,
+    Config.
+
+after_fun(Config) ->
+        {done, Results} = midjan_core:start({after_fun, []}, [{ordered, [midjan_test1,
+                                                                         midjan_test2,
+                                                                         midjan_test3
+                                                                        ]},
+                                                              {after_each, fun hook_test/2}
+                                                             ]),
+    {after_fun, [midjan_test1, {hook, midjan_test1},
+                  midjan_test2, {hook, midjan_test2},
+                  midjan_test3, {hook, midjan_test3}]} = Results,
+    Config.
+
+%% Internal
+hook_test({X, List}, Module) ->
+    {X, List ++ [{hook, Module}]}.

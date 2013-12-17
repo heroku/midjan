@@ -8,4 +8,4 @@
     {{back, midjan_module:work()}, State}|
     {stop, State} when
       Module :: midjan_module:work(),
-      State :: any().
+      State :: midjan_module:state().

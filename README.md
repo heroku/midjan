@@ -9,13 +9,12 @@ the chain and rerun it from a a certain point.
 
 ``` erlang
 -type opts() :: [opt()]|[].
--type opt() :: {ordered, [midja_module:work()]}|
-               {translator, midja_translator:translator()}|
-               {aftereach, midja_module:work()}.
--spec start(any(), opts()) ->
-                   {done, any()}|
-                   no_return().
-                 
+-type opt() :: {ordered, [midjan_module:work()]}|
+               {translator, midjan_translator:translator()}|
+               {after_each, hook_fun()}|
+               {before_each, hook_fun()}.
+-type hook_fun() :: fun((midjan_module:state(), midjan_module:work()) ->
+                               midjan_module:state()).
 ```
 
 ### Midja Work Module
