@@ -6,20 +6,24 @@
 -type opt() :: {ordered, [midjan_module:work()]}|
                {translator, midjan_translator:translator()}|
                {after_each, hook_fun()}|
-               {before_each, hook_fun()}.
+               {before_each, hook_fun()}|
+               {finally, finally_fun()}.
 -type hook_fun() :: fun((midjan_module:state(), midjan_module:work()) ->
                                midjan_module:state()).
+-type finally_fun() :: fun((midjan_module:state()) -> midjan_module:state()).
 
 -export_type([opts/0,
               opt/0,
-              hook_fun/0]).
+              hook_fun/0,
+              finally_fun/0]).
 
 -record(state, {
           after_each :: hook_fun()|undefined,
           before_each :: hook_fun()|undefined,
           ordered :: [module()],
           path :: [module()]|[],
-          translator :: module()|undefined
+          translator :: module()|undefined,
+          finally :: finally_fun()|undefined
          }).
 
 -spec start(any(), opts()) ->
@@ -62,7 +66,7 @@ decide({back, NextModule}, #state{ordered=Ordered}=State) ->
 decide_and_execute(Client, NextAction, State) ->
     case decide(NextAction, State) of
         stop ->
-            {done, Client};
+            {done, finalize(Client, State)};
         {NextModule, State1} ->
             execute(Client, NextModule, State1)
     end.
@@ -81,6 +85,11 @@ handle_module_output({{back, _NextModule}=Cmd, Client}, State) ->
 handle_module_output({stop, Client}, State) ->
     {stop, Client, State}.
 
+finalize(Client, #state{finally=undefined}) ->
+    Client;
+finalize(Client, #state{finally=Finally}) ->
+    Finally(Client).
+
 init_state([], State) ->
     State;
 init_state([{translator, Module}|Rest], State) ->
@@ -91,4 +100,7 @@ init_state([{ordered, Modules}|Rest], State) ->
 init_state([{after_each, Fun}|Rest], State) ->
     init_state(Rest, State#state{after_each=Fun});
 init_state([{before_each, Fun}|Rest], State) ->
-    init_state(Rest, State#state{before_each=Fun}).
+    init_state(Rest, State#state{before_each=Fun});
+init_state([{finally, Fun}|Rest], State) ->
+    init_state(Rest, State#state{finally=Fun}).
+

@@ -12,9 +12,11 @@ the chain and rerun it from a a certain point.
 -type opt() :: {ordered, [midjan_module:work()]}|
                {translator, midjan_translator:translator()}|
                {after_each, hook_fun()}|
-               {before_each, hook_fun()}.
+               {before_each, hook_fun()}|
+               {finally, finally_fun()}.
 -type hook_fun() :: fun((midjan_module:state(), midjan_module:work()) ->
                                midjan_module:state()).
+-type finally_fun() :: fun((midjan_module:state()) -> midjan_module:state()).
 ```
 
 ### Midja Work Module

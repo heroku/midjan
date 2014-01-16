@@ -12,7 +12,8 @@ groups() ->
                            go_back,
                            translator,
                            before_fun,
-                           after_fun
+                           after_fun,
+                           finally_fun
                           ]}
     ].
 
@@ -77,17 +78,32 @@ before_fun(Config) ->
     Config.
 
 after_fun(Config) ->
-        {done, Results} = midjan_core:start({after_fun, []}, [{ordered, [midjan_test1,
-                                                                         midjan_test2,
-                                                                         midjan_test3
-                                                                        ]},
-                                                              {after_each, fun hook_test/2}
-                                                             ]),
+    {done, Results} = midjan_core:start({after_fun, []}, [{ordered, [midjan_test1,
+                                                                     midjan_test2,
+                                                                     midjan_test3
+                                                                    ]},
+                                                          {after_each, fun hook_test/2}
+                                                         ]),
     {after_fun, [midjan_test1, {hook, midjan_test1},
-                  midjan_test2, {hook, midjan_test2},
-                  midjan_test3, {hook, midjan_test3}]} = Results,
+                 midjan_test2, {hook, midjan_test2},
+                 midjan_test3, {hook, midjan_test3}]} = Results,
+    Config.
+
+finally_fun(Config) ->
+    {done, Results} = midjan_core:start({finally, []}, [{ordered, [midjan_test1,
+                                                                   midjan_test2,
+                                                                   midjan_test3
+                                                                  ]},
+                                                        {finally, fun finally/1}
+                                                       ]),
+    {{finally, [midjan_test1,
+                midjan_test2,
+                midjan_test3]}, finally} = Results,
     Config.
 
 %% Internal
 hook_test({X, List}, Module) ->
     {X, List ++ [{hook, Module}]}.
+
+finally(State) ->
+    {State, finally}.
