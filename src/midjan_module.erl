@@ -1,3 +1,6 @@
+%%% @doc Callback / behaviour module.
+%%% Defines a piece of work to be done, and the flow required when said
+%%% work is done.
 -module(midjan_module).
 
 -type work() :: module().

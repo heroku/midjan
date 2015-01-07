@@ -1,3 +1,6 @@
+%%% @doc Midjan execution module. Takes the workers and translators
+%%% submitted by the user and executes them according to their return
+%%% values.
 -module(midjan_core).
 
 -export([start/2]).
@@ -26,6 +29,15 @@
           finally :: finally_fun()|undefined
          }).
 
+ %% @doc Run a set of modules and translators.
+ %% The options are:
+ %% - `{ordered, [Worker]}': specify a list of workers to be run after each other
+ %% - `{translator, Translator}': to transform the output of workers into the
+ %%   format expected by midjan.
+ %% - `{(after|before)_each, Fun}': A set of pre/post hooks for any worker; The
+ %%   `after_each' hook is run after the translator.
+ %% - `{finally, Fun}': Function run once the execution has stopped according to
+ %%   the workers.
 -spec start(any(), opts()) ->
                    {done, any()}|
                    no_return().

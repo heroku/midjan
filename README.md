@@ -49,3 +49,11 @@ return values as a Midja Work Module.
       Module :: midjan_module:work(),
       State :: any().
 ```
+
+## Tests
+
+Rebar needs to be in your namespace.
+
+```
+rebar compile ct
+```
